@@ -1,8 +1,8 @@
+"""Data module for Plainr. Downloads and manages NLTK data resources."""
 from pathlib import Path
 
 import nltk
 
-__all__ = ["get_nltk_data"]
 
 def get_nltk_data() -> None:
     """
@@ -18,4 +18,5 @@ def get_nltk_data() -> None:
     except LookupError:
         nltk.download("punkt_tab", quiet=True, download_dir=nltk_data_dir)
 
-REPO_ROOT = Path(__file__).parent.parent
+
+__all__ = ("get_nltk_data",)

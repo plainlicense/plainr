@@ -1,9 +1,26 @@
 """Types for plainr's readability functionality."""
-from pathlib import Path
-from typing import (NamedTuple, Literal, TypedDict, TypeGuard, Any)
+
 from enum import StrEnum
-from readability import scorers
-from readability import Readability
+from functools import cached_property
+from typing import Any, Literal, NamedTuple, TypedDict, TypeGuard
+
+from readability import Readability, scorers
+
+
+def validate_metrics_members(
+    members: dict[str, Any | None],
+) -> TypeGuard[dict[str, tuple[str]]]:
+    """Validate that all members have alternative names. Used to validate the members of ReadabilityMetric."""
+    for metric, other_names in members.items():
+        if not other_names:
+            raise ValueError(f"Metric {metric} does not have alternative names.")
+        if not isinstance(other_names, tuple):
+            raise TypeError(
+                f"Alternative names for {metric} must be a tuple, got {type(other_names)}."
+            )
+        if not all(isinstance(name, str) for name in other_names):
+            raise TypeError(f"All alternative names for {metric} must be strings.")
+    return True
 
 
 type Metric = Literal[
@@ -19,61 +36,30 @@ type Metric = Literal[
 ]
 
 type IndividualScoreResponseType = type[
-    scorers.ARI
-    | scorers.ColemanLiau
-    | scorers.DaleChall
-    | scorers.Flesch
-    | scorers.FleschKincaid
-    | scorers.GunningFog
-    | scorers.LinsearWrite
-    | scorers.Smog
-    | scorers.Spache
+    scorers.ari.Result
+    | scorers.coleman_liau.Result
+    | scorers.dale_chall.Result
+    | scorers.flesch.Result
+    | scorers.flesch_kincaid.Result
+    | scorers.gunning_fog.Result
+    | scorers.linsear_write.Result
+    | scorers.smog.Result
+    | scorers.spache.Result
 ]
 
 type AllScoreResponseType = tuple[
-    type[scorers.ARI],
-    type[scorers.ColemanLiau],
-    type[scorers.DaleChall],
-    type[scorers.Flesch],
-    type[scorers.FleschKincaid],
-    type[scorers.GunningFog],
-    type[scorers.LinsearWrite],
-    type[scorers.Smog],
-    type[scorers.Spache],
+    type[scorers.ari.Result],
+    type[scorers.coleman_liau.Result],
+    type[scorers.dale_chall.Result],
+    type[scorers.flesch.Result],
+    type[scorers.flesch_kincaid.Result],
+    type[scorers.gunning_fog.Result],
+    type[scorers.linsear_write.Result],
+    type[scorers.smog.Result],
+    type[scorers.spache.Result],
 ]
 
 type ScorerResponseType = IndividualScoreResponseType | AllScoreResponseType
-
-
-def validate_metrics_members(
-    members: dict[str, Any | None],
-) -> TypeGuard[dict[str, tuple[str]]]:
-    """Validate that all members have alternative names."""
-    for metric, other_names in members.items():
-        if not other_names:
-            raise ValueError(f"Metric {metric} does not have alternative names.")
-        if not isinstance(other_names, tuple):
-            raise TypeError(
-                f"Alternative names for {metric} must be a tuple, got {type(other_names)}."
-            )
-        if not all(isinstance(name, str) for name in other_names):
-            raise TypeError(f"All alternative names for {metric} must be strings.")
-    return True
-
-
-class Scores(TypedDict, total=False):
-    """TypedDict for readability scores."""
-
-    ari: scorers.ari.Result | None
-    coleman_liau: scorers.coleman_liau.Result | None
-    dale_chall: scorers.dale_chall.Result | None
-    flesch: scorers.flesch.Result | None
-    flesch_kincaid: scorers.flesch_kincaid.Result | None
-    gunning_fog: scorers.gunning_fog.Result | None
-    linsear_write: scorers.linsear_write.Result | None
-    smog: scorers.smog.Result | None
-    spache: scorers.spache.Result | None
-
 
 class AboutMetric(NamedTuple):
     """NamedTuple for metric description."""
@@ -134,38 +120,6 @@ class ReadabilityMetric(StrEnum):
                 if name and n
             })
         )
-
-    def _all_scorers(self) -> AllScoreResponseType:
-        """Return all scorer classes for the readability metric."""
-        return (
-            scorers.ARI,
-            scorers.ColemanLiau,
-            scorers.DaleChall,
-            scorers.Flesch,
-            scorers.FleschKincaid,
-            scorers.GunningFog,
-            scorers.LinsearWrite,
-            scorers.Smog,
-            scorers.Spache,
-        )
-
-    @property
-    def scorer(self) -> ScorerResponseType:
-        """Return the scorer class for the readability metric."""
-        if self == ReadabilityMetric.ALL:
-            return self._all_scorers()
-        scorer_map = {
-            ReadabilityMetric.ARI: scorers.ARI,
-            ReadabilityMetric.COLEMAN_LIAU: scorers.ColemanLiau,
-            ReadabilityMetric.DALE_CHALL: scorers.DaleChall,
-            ReadabilityMetric.FLESCH: scorers.Flesch,
-            ReadabilityMetric.FLESCH_KINCAID: scorers.FleschKincaid,
-            ReadabilityMetric.GUNNING_FOG: scorers.GunningFog,
-            ReadabilityMetric.LINSEAR_WRITE: scorers.LinsearWrite,
-            ReadabilityMetric.SMOG: scorers.Smog,
-            ReadabilityMetric.SPACHE: scorers.Spache,
-        }
-        return scorer_map[self]
 
     @property
     def test_minimums(self) -> tuple[Literal["num_words", "num_sentences"], int]:
@@ -281,8 +235,63 @@ class ReadabilityMetric(StrEnum):
             ):
                 return ("score", "grade_level")
 
+
 class ScoredMetric(NamedTuple):
     """NamedTuple for scored metrics."""
 
     metric: ReadabilityMetric
     result: IndividualScoreResponseType
+
+    @cached_property
+    def normalized_grade(self) -> int:
+        """Get the normalized grade level from the result."""
+        if self.metric ==  ReadabilityMetric.FLESCH:
+        # **ALL** the `Result` classes have a `score` attribute that is a float
+        # Flesch's `score` is a float between 0 and 100, so we normalize it to a grade level
+        # All others are already grade levels
+            grade = 5 + (100 - self.result.score) * 13 / 100 # type: ignore
+            return max(5, min(18, round(grade)))
+        return round(self.result.score) # type: ignore
+
+    def _validate_result(self, result: IndividualScoreResponseType | None) -> TypeGuard[IndividualScoreResponseType]:
+        """Validate that all results are of the correct type."""
+        if result is None:
+            result = self.result
+        self_module = scorers.__dict__.get(self.metric.value, None)
+        if self_module and (result_type := getattr(self_module, "Result", None)):
+            return isinstance(result, result_type)
+        raise TypeError(
+            f"Result for {self.metric}'s result type should not be {type(result)}."
+        )
+
+class GradedScoredMetric(NamedTuple):
+    "Scored metric with the normalized grade."
+    metric: ReadabilityMetric
+    result: IndividualScoreResponseType
+    grade: int
+
+    @classmethod
+    def from_score(cls, score: ScoredMetric) -> "GradedScoredMetric":
+        """Create a GradedScoredMetric from a ScoredMetric."""
+        return cls(metric=score.metric, result=score.result, grade=score.normalized_grade)
+
+class ReadabilityStats(TypedDict):
+    """TypedDict for readability statistics."""
+
+    num_letters: int
+    num_words: int
+    num_sentences: int
+    num_polysyllabic_words: int
+    avg_words_per_sentence: float
+    avg_syllables_per_word: float
+
+
+__all__ = [
+    "AllScoreResponseType",
+    "GradedScoredMetric",
+    "IndividualScoreResponseType",
+    "ReadabilityMetric",
+    "ReadabilityStats",
+    "ScoredMetric",
+    "ScorerResponseType",
+]

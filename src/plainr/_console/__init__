@@ -1,0 +1,6 @@
+"""Initializes the console module."""
+from plainr._console._comparison_results import deliver_results
+from plainr._console._console import PlainrConsole
+
+
+__all__ = ("PlainrConsole", "deliver_results")

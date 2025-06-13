@@ -16,6 +16,8 @@ from typing import Any, ClassVar
 
 import ez_yaml
 
+from plainr.types.licenses import LicenseData, LicenseType
+
 
 @dataclass
 class LicensePageData:
@@ -166,3 +168,40 @@ class LicenseContent:
         Suitable for readability analysis.
         """
         return self.original_license_text.strip()
+
+def _create_page(license_path: Path) -> LicensePageData:
+    """Create a license page data from a license file."""
+    return parse_license_file(license_path)
+
+def _get_license(license_name: LicenseType) -> LicenseContent:
+    """Get the LicenseContent object for a given license name."""
+    try:
+        license_path = license_name.path
+    except KeyError as e:
+        raise ValueError(
+            f"License {license_name} not found in available licenses. Must be one of {LicenseType.licenses()}."
+        ) from e
+    if not license_path:
+        raise ValueError(f"License {license_name} not found in available licenses.")
+    page = _create_page(license_path)
+    return LicenseContent(page)
+
+
+def get_license_data(license_name: LicenseType) -> LicenseData:
+    """Get the license data for a given license name."""
+    license_content = _get_license(license_name)
+    plain_text = license_content.plaintext_content
+    original_text = license_content.original_plaintext_content
+    return LicenseData(
+        license=license_content,
+        plain_license_text=plain_text,
+        original_text=original_text,
+    )
+
+
+__all__ = (
+    "LicenseContent",
+    "LicensePageData",
+    "get_license_data",
+    "parse_license_file",
+)

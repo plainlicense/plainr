@@ -1,0 +1,16 @@
+rule_settings:
+  enable:
+    - default
+    - gpsg
+  disable:
+    - avoid-global-variables
+  python_version: "3.13"
+  rule_types:
+    - refactoring
+    - suggestion
+    - comment
+
+ignore:
+  - welcome-to-sourcery.py
+  - .git/
+  - .venv/
