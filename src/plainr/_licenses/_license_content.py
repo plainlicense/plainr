@@ -12,11 +12,19 @@ from datetime import UTC, datetime
 from pathlib import Path
 from re import Pattern
 from textwrap import dedent
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict
 
 import ez_yaml
 
-from plainr.types.licenses import LicenseData, LicenseType
+from plainr.types.licenses import LicenseType
+
+
+class LicenseData(TypedDict):
+    """TypedDict for license data."""
+
+    license: "LicenseContent"
+    plain_license_text: str
+    original_text: str
 
 
 @dataclass
@@ -201,6 +209,7 @@ def get_license_data(license_name: LicenseType) -> LicenseData:
 
 __all__ = (
     "LicenseContent",
+    "LicenseData",
     "LicensePageData",
     "get_license_data",
     "parse_license_file",

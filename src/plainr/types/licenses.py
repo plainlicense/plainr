@@ -1,18 +1,7 @@
 """Types and enums for license handling in Plainr."""
+
 from enum import Enum, StrEnum
 from pathlib import Path
-from typing import TypedDict
-
-from plainr._licenses import LicenseContent
-from plainr.config import CONSTANTS
-
-
-class LicenseData(TypedDict):
-    """TypedDict for license data."""
-
-    license: LicenseContent
-    plain_license_text: str
-    original_text: str
 
 
 class TextType(Enum):
@@ -62,6 +51,9 @@ class LicenseType(StrEnum):
     @property
     def root_path(self) -> Path:
         """Return the root path for the license type."""
+        # Import here to avoid circular dependency
+        from plainr.config import CONSTANTS
+
         return CONSTANTS.repo_root / "docs" / "licenses" / self.category / self.spdx_id
 
     @property
@@ -89,8 +81,10 @@ class LicenseType(StrEnum):
         )
 
 
+__all__ = ("LicenseType", "TextType")
+
+
 __all__ = (
-    "LicenseData",
     "LicenseType",
     "TextType",
 )

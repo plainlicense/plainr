@@ -2,7 +2,7 @@
 name = "plainr"
 version = "0.1.0"
 description = "A CLI tool for developers to manage their Plain License like code, and add plain language linting to their development tools. Get readability metrics, plain language suggestions, add and update your Plain License, and more."
-readme = "README.md"
+readme = "unlicense"
 authors = [{ name = "Adam Poulemanos", email = "adam@plainlicense.org" }]
 requires-python = ">=3.12"
 license = "unlicense"
@@ -26,5 +26,5 @@ dev = [
     "ipython>=9.3.0",
     "pytest>=8.4.0",
     "ruff>=0.11.13",
-    "uv>=0.7.12",
+    "uv>=0.7.13",
 ]

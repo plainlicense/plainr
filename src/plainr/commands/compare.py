@@ -11,10 +11,10 @@ from cyclopts import App, Parameter
 from plainr._console._comparison_results import deliver_results
 from plainr._console._console import PlainrConsole
 from plainr._data import get_nltk_data
-from plainr._licenses import get_license_data
+from plainr._licenses import LicenseData, get_license_data
 from plainr._readability._scorer import ReadabilityScorer, get_comparison
 from plainr.config import CONSTANTS
-from plainr.types.licenses import LicenseData, LicenseType, TextType
+from plainr.types.licenses import LicenseType, TextType
 from plainr.types.readability import ReadabilityMetric
 from plainr.utilities.readability import convert_tokens_to_metrics
 
@@ -28,6 +28,7 @@ app = App(
     help=f"""Compare the readability of Plain License licenses with their original counterparts against any of {len(ReadabilityMetric.__members__)} readability metrics; or all of them.""",
 )
 
+# TODO: More granular over data returned, displayed, and output.
 @app.default
 def compare(
     license_name: Annotated[

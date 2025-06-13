@@ -1,5 +1,5 @@
 """Initialization file for the types module."""
-from plainr.types.licenses import LicenseData, LicenseType, TextType
+from plainr.types.licenses import LicenseType, TextType
 from plainr.types.readability import (
     AboutMetric,
     AllScoreResponseType,
@@ -16,7 +16,6 @@ __all__ = [
     "AllScoreResponseType",
     "FromMarkupParams",
     "IndividualScoreResponseType",
-    "LicenseData",
     "LicenseType",
     "LogLevel",
     "Metric",
