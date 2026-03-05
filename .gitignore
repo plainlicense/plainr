@@ -1,57 +1,83 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc.
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# local configs
+.claude/*.local.*
+**/*.local.*
+**/*.local.*.license
+mise.local.toml
+mise.*.local.toml
+mise.local.toml.license
+mise.*.local.toml.license
+hk.local.pkl.license
+.ruff_cache
+.roo/mcp.json
+# local terminal zsh config -- can contain sensitive info
+.vscode/terminal.local.zsh
+*mcp*.backup*
+
+# CLAUDE.md -- we symlink this file from AGENTS.md in the setup script
+CLAUDE.md
+GEMINI.md
 
 # non-public working files
-.workbench/*
 .workbench/
 .devenv/
-.devenv/*
-.testbuild
-.testbuild/*
-.testbuild/**/*
+.testbuild/
 .history
+.temp/
+
+# Workspace files
+*.code-workspace
+*.code-workspace.license
 
 # mkdocs
 .cache
-!.cache/uv/
-
-# Leave launch.json public
-!.vscode/launch.json
 
 # Playwright
 logs
 _.log
 report.[0-9]_[0-9]_[0-9]_[0-9]_.json
 out
-dist
+dist/
 *.tgz
 coverage
 *.lcov
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+*.local.*
+*.local
 .eslintcache
 .cache
 !.cache/uv/
 *.tsbuildinfo
+**/dist/
 
 # venv
-**/__pycache__/
-**/.pytest_cache/
 **/.venv
 .venv/
 
-# node
-node_modules
+# node and docs-site
 node_modules/
-node_modules/**
-**/node_modules/**
+**/node_modules/
+docs-site/dist/
+docs-site/.cache/
+docs-site/.astro/
 
+# Cache files
+**/__pycache__/
+**/.pytest_cache/
 __pycache__/
-.gitattributes
+.pytest_cache/
+.eslintcache
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
 .pytest_cache
 
 dist/
+site/
 *.tar
 *.tar.*
 *.jar
@@ -66,14 +92,11 @@ dist/
 .DS_Store
 *.swp
 
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
-
-# Tran
-.eslintcache
+# Local config
 ipython_config.py
 
 # Environments
@@ -84,9 +107,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
-# mkdocs documentation
-/site
 
 # Build results
 [Dd]ebug/
@@ -133,36 +153,80 @@ bld/
 *.svclog
 *.scc
 
-# Visual Studio code coverage results
-*.coverage
-*.coveragexml
-
-# Visual Studio cache files
-# files ending in .cache can be ignored
-*.[Cc]ache
-# but keep track of directories ending in .cache
-!?*.[Cc]ache/
-
 # Including strong name files can present a security risk
 # (https://github.com/github/gitignore/pull/2483#issue-259490424)
 *.snk
 
-# Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
 bower_components/
 
-# VS Code files for those working on multiple tools
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/mcp.json
-*.code-workspace
-
 # Local History for Visual Studio Code
 .history/
-lib64
+lib64/
 remote-debug-profile/
 
+# zcomp and zhistory files
+.vscode/zsh/.zcompdump
+.vscode/zsh/.zcompdump-*
+.vscode/zsh/.zsh_history
+
+__pycache__/
+# //!SECTION  EXCEPTIONS -- Put all inverted ("!") rules at the end of the file!
+
+# but keep track of directories ending in .cache
+!?*.[Cc]ache/
+
+# Leave launch.json public
+!.vscode/launch.json
+!.vscode/launch.json.license
+
+# Leave settings.json and workspace zshrc/init public
+!.vscode/tasks.json
+!.vscode/tasks.json.license
+!.vscode/extensions.json
+!.vscode/extensions.json.license
+!.vscode/mcp.json
+!.vscode/mcp.json.license
+!.vscode/settings.json
+!.vscode/settings.json.license
+!.vscode/terminal.extra.zsh
+!.vscode/terminal.extra.zsh.example
+!.vscode/zsh/.zshrc
+
+# project-level git files that should be public and easily get caught in ignores
 !.gitattributes
+!.gitconfig.license
+!.gitignore
+!.gitconfig
+!.mailmap
+
+!.cache/uv/
+
+# Generated Files
+**/htmlcov/
+htmlcov/
+.coverage
+.coveragexml
+.vscode/.history/
+coverage.xml
+docs-site/dist/
+htmlcov/
+lcov-report/
+server.json
+server.json.license
+server.yaml
+server.yaml.license
+src/codeweaver/_version.py
+test-results.xml
+
+.jj/
+
+# Finally, stuff we *really* don't want to let leak
+.local.env
+.codeweaver.local.env
+.codeweaver/local.env
+mise.local.toml
+mise.local.env
+
+.gemini/
+gha-creds-*.json
